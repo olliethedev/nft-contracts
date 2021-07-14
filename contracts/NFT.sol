@@ -23,7 +23,7 @@ contract NFT is ERC721, Ownable {
   /**
   * @dev Mints a new nft if requirements are satisfied.
   */
-  function mintToken(address owner)
+  function mintToken()
   public
   payable
   returns (uint256)
@@ -33,7 +33,7 @@ contract NFT is ERC721, Ownable {
     _tokenIds.increment();
 
     uint256 id = _tokenIds.current();
-    _safeMint(owner, id);
+    _safeMint(msg.sender, id);
 
     return id;
   }
@@ -44,7 +44,7 @@ contract NFT is ERC721, Ownable {
   function withdraw() public onlyOwner{
     payable(owner()).transfer(address(this).balance);
   }
-  
+
   function getCost() public view returns (uint256){
     return _mintCost;
   }
