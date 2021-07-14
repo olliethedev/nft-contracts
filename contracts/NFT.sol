@@ -11,11 +11,18 @@ contract NFT is ERC721, Ownable {
   uint256 private _mintCost;
   uint256 private _maxSupply;
   
+  /**
+  * @dev Initializes the contract setting the `tokenName` and `symbol` of the nft, `cost` of each mint call, and maximum `supply` of the nft.
+  * Note: `cost` is in wei. 
+  */
   constructor(string memory tokenName, string memory symbol, uint256 cost, uint256 supply) ERC721(tokenName, symbol) Ownable() {
     _mintCost = cost;
     _maxSupply = supply;
   }
 
+  /**
+  * @dev Mints a new nft if requirements are satisfied.
+  */
   function mintToken(address owner)
   public
   payable
@@ -30,9 +37,14 @@ contract NFT is ERC721, Ownable {
 
     return id;
   }
-  function _baseURI() override internal pure returns (string memory) {
-        return "http://localhost:8080";
+  /**
+  * @dev Transfers contract balance to contract owner.
+  * Can only be called by the current owner.
+  */
+  function withdraw() public onlyOwner{
+    payable(owner()).transfer(address(this).balance);
   }
+  
   function getCost() public view returns (uint256){
     return _mintCost;
   }
@@ -42,7 +54,7 @@ contract NFT is ERC721, Ownable {
   function getCurrentSupply() public view returns (uint256){
     return _tokenIds.current();
   }
-  function withdraw() public onlyOwner{
-    payable(owner()).transfer(address(this).balance);
+  function _baseURI() override internal pure returns (string memory) {
+        return "http://localhost:8080";
   }
 }
