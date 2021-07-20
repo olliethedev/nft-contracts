@@ -55,6 +55,9 @@ contract NFT is ERC721, Ownable {
     return _tokenIds.current();
   }
   function _baseURI() override internal pure returns (string memory) {
-        return "http://localhost:8080";
+        return "https://4a53x0u6k3.execute-api.us-east-1.amazonaws.com/dev/token/";
+  }
+  function contractURI() public pure returns (string memory) {
+        return "https://4a53x0u6k3.execute-api.us-east-1.amazonaws.com/dev/contract";
   }
 }
