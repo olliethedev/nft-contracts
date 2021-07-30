@@ -6,6 +6,7 @@ const NAME = "TestNFT";
 const SYMBOL = "tNFT";
 const COST = "10000000000000000";
 const SUPPLY = "5";
+//"Super Stickmen", "ssNFT", 10000000000000000, 100 
 //const BASE_URL = process.env.BASE_URL;
 
 module.exports = async (deployer, network, [owner]) => {

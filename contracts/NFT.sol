@@ -48,7 +48,7 @@ contract NFT is ERC721, Ownable {
   function getCost() public view returns (uint256){
     return _mintCost;
   }
-  function getMaxSupply() public view returns (uint256){
+  function totalSupply() public view returns (uint256){
     return _maxSupply;
   }
   function getCurrentSupply() public view returns (uint256){
