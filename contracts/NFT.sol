@@ -30,19 +30,59 @@ contract NFT is ERC721, Ownable {
   {
     require(_tokenIds.current() < _maxSupply, "Maximum supply reached");
     require(msg.value == _mintCost, "Caller provided invalid payment amount");
-    _tokenIds.increment();
-
-    uint256 id = _tokenIds.current();
-    _safeMint(msg.sender, id);
-
-    return id;
+    return _mint(msg.sender);
   }
+
+  /**
+  * @dev Mint `count` tokens to the contract owner.
+  * Can only be called by the current owner.
+  */
+  function adminMint(uint count)
+  public
+  onlyOwner{
+    for(uint i=0; i<count; i++){
+        _mint(msg.sender);
+     }
+  }
+
+  /**
+  * @dev Mint a token to each Address of `recipients`.
+  * Can only be called by the current owner.
+  */
+  function adminMintTo(address[] calldata recipients)
+  public
+  onlyOwner{
+    for(uint i=0; i<recipients.length; i++){
+        _mint(recipients[i]);
+     }
+  }
+
+  /**
+  * @dev Update the cost to mint a token.
+  * Can only be called by the current owner.
+  */
+  function setCost(uint256 cost) public onlyOwner{
+    _mintCost = cost;
+  }
+
   /**
   * @dev Transfers contract balance to contract owner.
   * Can only be called by the current owner.
   */
   function withdraw() public onlyOwner{
     payable(owner()).transfer(address(this).balance);
+  }
+
+  /**
+  * @dev Used by public mint functions and by owner functions.
+  * Can only be called internally by other functions.
+  */
+  function _mint(address to) internal virtual returns (uint256){
+    _tokenIds.increment();
+    uint256 id = _tokenIds.current();
+    _safeMint(to, id);
+
+    return id;
   }
 
   function getCost() public view returns (uint256){
