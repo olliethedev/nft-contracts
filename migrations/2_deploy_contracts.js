@@ -2,12 +2,11 @@ const BN = require('bn.js');
 
 const NFTContract = artifacts.require("./NFT.sol");
 
-const NAME = "TestNFT";
-const SYMBOL = "tNFT";
-const COST = "10000000000000000";
-const SUPPLY = "5";
-//"Super Stickmen", "ssNFT", 10000000000000000, 100 
-//const BASE_URL = process.env.BASE_URL;
+const NAME = "FUD Monsters";
+const SYMBOL = "FM";
+const COST = "50000000000000000";
+const SUPPLY = "8888";
+//example deploy params "FUD Monsters", "FM", 50000000000000000, 8888 
 //example params for adminMintTo() function: ["0x1bBe810e56F135BbDF2a25d5CcE2C001Ea17Fa65", "0xC9626B4058dDECBf162382C2dDfF05977D9Bf8a3", "0x84E374204b408a82d75Cd705E31805e91f0f8eE4"]
 
 module.exports = async (deployer, network, [owner]) => {

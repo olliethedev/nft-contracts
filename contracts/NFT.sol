@@ -10,6 +10,7 @@ contract NFT is ERC721, Ownable {
   Counters.Counter private _tokenIds;
   uint256 private _mintCost;
   uint256 private _maxSupply;
+  bool private _isPublicMintEnabled;
   
   /**
   * @dev Initializes the contract setting the `tokenName` and `symbol` of the nft, `cost` of each mint call, and maximum `supply` of the nft.
@@ -18,6 +19,27 @@ contract NFT is ERC721, Ownable {
   constructor(string memory tokenName, string memory symbol, uint256 cost, uint256 supply) ERC721(tokenName, symbol) Ownable() {
     _mintCost = cost;
     _maxSupply = supply;
+    _isPublicMintEnabled = false;
+  }
+
+  /**
+  * @dev Changes contract state to enable public access to `mintToken` function
+  * Can only be called by the current owner.
+  */
+  function allowPublicMint()
+  public
+  onlyOwner{
+    _isPublicMintEnabled = true;
+  }
+
+  /**
+  * @dev Changes contract state to disable public access to `mintToken` function
+  * Can only be called by the current owner.
+  */
+  function denyPublicMint()
+  public
+  onlyOwner{
+    _isPublicMintEnabled = false;
   }
 
   /**
@@ -28,6 +50,7 @@ contract NFT is ERC721, Ownable {
   payable
   returns (uint256)
   {
+    require(_isPublicMintEnabled, "Mint disabled");
     require(_tokenIds.current() < _maxSupply, "Maximum supply reached");
     require(msg.value == _mintCost, "Caller provided invalid payment amount");
     return _mint(msg.sender);
@@ -94,10 +117,13 @@ contract NFT is ERC721, Ownable {
   function getCurrentSupply() public view returns (uint256){
     return _tokenIds.current();
   }
+  function getMintStatus() public view returns (bool) {
+    return _isPublicMintEnabled;
+  }
   function _baseURI() override internal pure returns (string memory) {
-        return "https://4a53x0u6k3.execute-api.us-east-1.amazonaws.com/dev/token/";
+    return "https://4a53x0u6k3.execute-api.us-east-1.amazonaws.com/dev/token/";
   }
   function contractURI() public pure returns (string memory) {
-        return "https://4a53x0u6k3.execute-api.us-east-1.amazonaws.com/dev/contract";
+    return "https://4a53x0u6k3.execute-api.us-east-1.amazonaws.com/dev/contract";
   }
 }
