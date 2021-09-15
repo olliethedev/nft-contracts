@@ -6,7 +6,10 @@
     },
     "dependencies": {
         "@openzeppelin/contracts": "^4.0.0",
+        "@poanet/solidity-flattener": "^3.0.6",
         "@truffle/hdwallet-provider": "^1.3.0",
-        "bn.js": "^5.2.0"
+        "bn.js": "^5.2.0",
+        "truffle-flattener": "git+https://github.com/jplew/truffle-flattener.git",
+        "truffle-plugin-verify": "^0.5.11"
     }
 }

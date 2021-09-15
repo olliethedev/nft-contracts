@@ -4,9 +4,12 @@ pragma solidity >=0.4.22 <0.9.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract NFT is ERC721, Ownable {
+contract NFT is ERC721, Ownable, ReentrancyGuard {
   using Counters for Counters.Counter;
+  using SafeMath for uint256;
   Counters.Counter private _tokenIds;
   uint256 private _mintCost;
   uint256 private _maxSupply;
@@ -23,7 +26,7 @@ contract NFT is ERC721, Ownable {
   }
 
   /**
-  * @dev Changes contract state to enable public access to `mintToken` function
+  * @dev Changes contract state to enable public access to `mintTokens` function
   * Can only be called by the current owner.
   */
   function allowPublicMint()
@@ -33,7 +36,7 @@ contract NFT is ERC721, Ownable {
   }
 
   /**
-  * @dev Changes contract state to disable public access to `mintToken` function
+  * @dev Changes contract state to disable public access to `mintTokens` function
   * Can only be called by the current owner.
   */
   function denyPublicMint()
@@ -43,26 +46,18 @@ contract NFT is ERC721, Ownable {
   }
 
   /**
-  * @dev Mints a new nft if requirements are satisfied.
+  * @dev Mint `count` tokens if requirements are satisfied.
+  * 
   */
-  function mintToken()
+  function mintTokens(uint256 count)
   public
   payable
-  returns (uint256)
-  {
+  nonReentrant{
     require(_isPublicMintEnabled, "Mint disabled");
-    require(_tokenIds.current() < _maxSupply, "Maximum supply reached");
-    require(msg.value == _mintCost, "Caller provided invalid payment amount");
-    return _mint(msg.sender);
-  }
-
-  /**
-  * @dev Mint `count` tokens to the contract owner.
-  * Can only be called by the current owner.
-  */
-  function adminMint(uint count)
-  public
-  onlyOwner{
+    require(count > 0 && count <= 100, "You can drop minimum 1, maximum 100 NFTs");
+    require(count.add(_tokenIds.current()) < _maxSupply, "Exceeds max supply");
+    require(owner() == msg.sender || msg.value >= _mintCost.mul(count),
+           "Ether value sent is below the price");
     for(uint i=0; i<count; i++){
         _mint(msg.sender);
      }
@@ -72,7 +67,7 @@ contract NFT is ERC721, Ownable {
   * @dev Mint a token to each Address of `recipients`.
   * Can only be called by the current owner.
   */
-  function adminMintTo(address[] calldata recipients)
+  function mintTokens(address[] calldata recipients)
   public
   onlyOwner{
     for(uint i=0; i<recipients.length; i++){
@@ -86,6 +81,14 @@ contract NFT is ERC721, Ownable {
   */
   function setCost(uint256 cost) public onlyOwner{
     _mintCost = cost;
+  }
+
+  /**
+  * @dev Update the max supply.
+  * Can only be called by the current owner.
+  */
+  function setMaxSupply(uint256 max) public onlyOwner{
+    _maxSupply = max;
   }
 
   /**
@@ -121,9 +124,9 @@ contract NFT is ERC721, Ownable {
     return _isPublicMintEnabled;
   }
   function _baseURI() override internal pure returns (string memory) {
-    return "https://4a53x0u6k3.execute-api.us-east-1.amazonaws.com/dev/token/";
+    return "https://kirp0foijh.execute-api.us-east-1.amazonaws.com/dev/token/";
   }
   function contractURI() public pure returns (string memory) {
-    return "https://4a53x0u6k3.execute-api.us-east-1.amazonaws.com/dev/contract";
+    return "https://kirp0foijh.execute-api.us-east-1.amazonaws.com/dev/contract";
   }
 }

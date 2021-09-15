@@ -32,13 +32,17 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.8.0",    // Fetch exact version from solc-bin (default: truffle's version)
+      version: "0.8.4",    // Fetch exact version from solc-bin (default: truffle's version)
     }
   },
   // Truffle DB is currently disabled by default; to enable it, change enabled: false to enabled: true
   db: {
     enabled: false
   },
+  //plugin to verify token ownership for etherscan account
+  plugins: [
+    'truffle-plugin-verify'
+  ],
   //used to verify token ownership for etherscan account
   api_keys: {
     etherscan: ETHERSCAN_KEY
