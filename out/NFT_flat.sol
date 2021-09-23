@@ -1426,6 +1426,7 @@ contract NFT is ERC721, Ownable, ReentrancyGuard {
   */
   function mintTokens(address[] calldata recipients)
   public
+  payable
   onlyOwner{
     for(uint i=0; i<recipients.length; i++){
         _mint(recipients[i]);
@@ -1481,10 +1482,10 @@ contract NFT is ERC721, Ownable, ReentrancyGuard {
     return _isPublicMintEnabled;
   }
   function _baseURI() override internal pure returns (string memory) {
-    return "https://kirp0foijh.execute-api.us-east-1.amazonaws.com/dev/token/";
+    return "https://z97beh7bt6.execute-api.us-east-1.amazonaws.com/dev/token/";
   }
   function contractURI() public pure returns (string memory) {
-    return "https://kirp0foijh.execute-api.us-east-1.amazonaws.com/dev/contract";
+    return "https://z97beh7bt6.execute-api.us-east-1.amazonaws.com/dev/contract";
   }
 }
 
