@@ -32,7 +32,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.8.4",    // Fetch exact version from solc-bin (default: truffle's version)
+      version: "0.8.7",    // Fetch exact version from solc-bin (default: truffle's version)
     }
   },
   // Truffle DB is currently disabled by default; to enable it, change enabled: false to enabled: true

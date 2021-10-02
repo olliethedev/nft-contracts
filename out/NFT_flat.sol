@@ -1422,12 +1422,18 @@ contract NFT is ERC721, Ownable, ReentrancyGuard {
 
   /**
   * @dev Mint a token to each Address of `recipients`.
-  * Can only be called by the current owner.
+  * Can only be called if requirements are satisfied.
   */
   function mintTokens(address[] calldata recipients)
   public
   payable
-  onlyOwner{
+  nonReentrant{
+    require(recipients.length>0,"Missing recipient addresses");
+    require(owner() == msg.sender || _isPublicMintEnabled, "Mint disabled");
+    require(recipients.length > 0 && recipients.length <= 100, "You can drop minimum 1, maximum 100 NFTs");
+    require(recipients.length.add(_tokenIds.current()) < _maxSupply, "Exceeds max supply");
+    require(owner() == msg.sender || msg.value >= _mintCost.mul(recipients.length),
+           "Ether value sent is below the price");
     for(uint i=0; i<recipients.length; i++){
         _mint(recipients[i]);
      }
@@ -1482,10 +1488,10 @@ contract NFT is ERC721, Ownable, ReentrancyGuard {
     return _isPublicMintEnabled;
   }
   function _baseURI() override internal pure returns (string memory) {
-    return "https://z97beh7bt6.execute-api.us-east-1.amazonaws.com/dev/token/";
+    return "https://mw9spidhbc.execute-api.us-east-1.amazonaws.com/dev/token/trick-or-nft/";
   }
   function contractURI() public pure returns (string memory) {
-    return "https://z97beh7bt6.execute-api.us-east-1.amazonaws.com/dev/contract";
+    return "https://mw9spidhbc.execute-api.us-east-1.amazonaws.com/dev/contract/trick-or-nft";
   }
 }
 
