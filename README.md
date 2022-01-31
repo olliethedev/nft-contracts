@@ -14,4 +14,5 @@ Example deploying to ropsten:
 Flatten the contracts:
 ```./node_modules/.bin/poa-solidity-flattener ./contracts/NFT.sol```
 Use the file in `/out` directory to verify
+If fresh install, copy ERC721A.sol to node_modules/@poanet/solidity-flattener/contracts/ERC721A.sol
 

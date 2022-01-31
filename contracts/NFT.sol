@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.7;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "./ERC721A.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract NFT is ERC721, Ownable, ReentrancyGuard {
+contract NFT is ERC721A, Ownable, ReentrancyGuard {
   using Counters for Counters.Counter;
   using SafeMath for uint256;
-  Counters.Counter private _tokenIds;
   uint256 private _mintCost;
   uint256 private _maxSupply;
   bool private _isPublicMintEnabled;
@@ -19,7 +18,7 @@ contract NFT is ERC721, Ownable, ReentrancyGuard {
   * @dev Initializes the contract setting the `tokenName` and `symbol` of the nft, `cost` of each mint call, and maximum `supply` of the nft.
   * Note: `cost` is in wei. 
   */
-  constructor(string memory tokenName, string memory symbol, uint256 cost, uint256 supply) ERC721(tokenName, symbol) Ownable() {
+  constructor(string memory tokenName, string memory symbol, uint256 cost, uint256 supply) ERC721A(tokenName, symbol) Ownable() {
     _mintCost = cost;
     _maxSupply = supply;
     _isPublicMintEnabled = false;
@@ -55,12 +54,11 @@ contract NFT is ERC721, Ownable, ReentrancyGuard {
   nonReentrant{
     require(_isPublicMintEnabled, "Mint disabled");
     require(count > 0 && count <= 100, "You can drop minimum 1, maximum 100 NFTs");
-    require(count.add(_tokenIds.current()) < _maxSupply, "Exceeds max supply");
+    require(count.add(totalSupply()) < (_maxSupply+1), "Exceeds max supply");
     require(owner() == msg.sender || msg.value >= _mintCost.mul(count),
            "Ether value sent is below the price");
-    for(uint i=0; i<count; i++){
-        _mint(msg.sender);
-     }
+    
+    _mint(msg.sender, count);
   }
 
   /**
@@ -74,11 +72,11 @@ contract NFT is ERC721, Ownable, ReentrancyGuard {
     require(recipients.length>0,"Missing recipient addresses");
     require(owner() == msg.sender || _isPublicMintEnabled, "Mint disabled");
     require(recipients.length > 0 && recipients.length <= 100, "You can drop minimum 1, maximum 100 NFTs");
-    require(recipients.length.add(_tokenIds.current()) < _maxSupply, "Exceeds max supply");
+    require(recipients.length.add(totalSupply()) < (_maxSupply+1), "Exceeds max supply");
     require(owner() == msg.sender || msg.value >= _mintCost.mul(recipients.length),
            "Ether value sent is below the price");
     for(uint i=0; i<recipients.length; i++){
-        _mint(recipients[i]);
+        _mint(recipients[i], 1);
      }
   }
 
@@ -110,22 +108,20 @@ contract NFT is ERC721, Ownable, ReentrancyGuard {
   * @dev Used by public mint functions and by owner functions.
   * Can only be called internally by other functions.
   */
-  function _mint(address to) internal virtual returns (uint256){
-    _tokenIds.increment();
-    uint256 id = _tokenIds.current();
-    _safeMint(to, id);
+  function _mint(address to, uint256 count) internal virtual returns (uint256){
+    _safeMint(to, count);
 
-    return id;
+    return count;
   }
 
   function getCost() public view returns (uint256){
     return _mintCost;
   }
-  function totalSupply() public view returns (uint256){
+  function getMaxSupply() public view returns (uint256){
     return _maxSupply;
   }
   function getCurrentSupply() public view returns (uint256){
-    return _tokenIds.current();
+    return totalSupply();
   }
   function getMintStatus() public view returns (bool) {
     return _isPublicMintEnabled;
