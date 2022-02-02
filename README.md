@@ -16,3 +16,5 @@ Flatten the contracts:
 Use the file in `/out` directory to verify
 If fresh install, copy ERC721A.sol to node_modules/@poanet/solidity-flattener/contracts/ERC721A.sol
 
+## Build ABIs
+`npx truffle compile`
