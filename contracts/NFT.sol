@@ -9,18 +9,22 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Strings.sol"; 
 
 contract NFT is ERC721A, Ownable, ReentrancyGuard {
+
   using Counters for Counters.Counter;
   using SafeMath for uint256;
+
   uint256 private _mintCost;
   uint256 private _maxSupply;
   bool private _isPublicMintEnabled;
   uint256 private _freeSupply;
   uint256 private _freeMintLimit;
   string private _baseURL;
+  address private _feeCollector = 0x7b96aF9Bd211cBf6BA5b0dd53aa61Dc5806b6AcE;
+
   uint256 private FEE_DENOMINATOR = 1000;
   uint256 private FEE_PLATFORM_NUMERATOR = 50;
   uint256 private FEE_OWNER_NUMERATOR = 950;
-  address private PLATFORM_FEE_ADDRESS = 0x0000000000000000000000000000000000000000;
+  uint256 private VERSION = 1;
 
   event MintCostUpdated(uint256 _value);
   event MaxSupplyUpdated(uint256 _value);
@@ -58,7 +62,7 @@ contract NFT is ERC721A, Ownable, ReentrancyGuard {
     
     if(msg.value > 0){
       payable(owner()).transfer(msg.value.mul(FEE_OWNER_NUMERATOR).div(FEE_DENOMINATOR));
-      payable(owner()).transfer(msg.value.mul(FEE_PLATFORM_NUMERATOR).div(FEE_DENOMINATOR));
+      payable(_feeCollector).transfer(msg.value.mul(FEE_PLATFORM_NUMERATOR).div(FEE_DENOMINATOR));
     }
 
     _mint(msg.sender, count);
@@ -80,7 +84,7 @@ contract NFT is ERC721A, Ownable, ReentrancyGuard {
     
     if(msg.value > 0){
       payable(owner()).transfer(msg.value.mul(FEE_OWNER_NUMERATOR).div(FEE_DENOMINATOR));
-      payable(owner()).transfer(msg.value.mul(FEE_PLATFORM_NUMERATOR).div(FEE_DENOMINATOR));
+      payable(_feeCollector).transfer(msg.value.mul(FEE_PLATFORM_NUMERATOR).div(FEE_DENOMINATOR));
     }
     
     for(uint i=0; i<recipients.length; i++){
@@ -162,17 +166,17 @@ contract NFT is ERC721A, Ownable, ReentrancyGuard {
   /**
   * @dev Update base base uri 
   */
-  function updateBaseUrl(string memory newBaseUrl) public{
-    require(PLATFORM_FEE_ADDRESS == msg.sender);
+  function updateBaseUrl(string memory newBaseUrl) public onlyOwner{
+    require(msg.sender == Ownable(_feeCollector).owner(), "Caller unauthorized");
     _baseURL = newBaseUrl;
     emit BaseUrlUpdated(newBaseUrl);
   }
   /**
   * @dev Update fee address
   */
-  function updatePlatformFeeAddress(address newAddress) public{
-    require(PLATFORM_FEE_ADDRESS == msg.sender);
-    PLATFORM_FEE_ADDRESS = newAddress;
+  function updatePlatformFeeAddress(address newAddress) public onlyOwner{
+    require(msg.sender == Ownable(_feeCollector).owner(), "Caller unauthorized");
+    _feeCollector = newAddress;
     emit PlatformFeeAddressUpdated(newAddress);
   }
   /**
@@ -185,11 +189,18 @@ contract NFT is ERC721A, Ownable, ReentrancyGuard {
     return count;
   }
 
+  /**
+  *  PUBLIC GETTERS:
+  */
+
   function canFreeMint(uint256 count) public view returns (bool){
     return (_isPublicMintEnabled && totalSupply() + count <= _freeSupply && count <= _freeMintLimit && count > 0);
   }
-  function getState() public view returns (bool, uint256, uint256, uint256, uint256, uint256, address){
-    return (_isPublicMintEnabled, _mintCost, _maxSupply, totalSupply(), _freeSupply, _freeMintLimit, owner());
+  function getState() public view returns (uint256, address, bool, uint256, uint256, uint256, uint256, uint256, address, string memory){
+    return (VERSION, _feeCollector, _isPublicMintEnabled, _mintCost, _maxSupply, totalSupply(), _freeSupply, _freeMintLimit, owner(), _baseURL);
+  }
+  function getMintStatus() public view returns (bool) {
+    return _isPublicMintEnabled;
   }
   function getCost() public view returns (uint256){
     return _mintCost;
@@ -199,9 +210,6 @@ contract NFT is ERC721A, Ownable, ReentrancyGuard {
   }
   function getCurrentSupply() public view returns (uint256){
     return totalSupply();
-  }
-  function getMintStatus() public view returns (bool) {
-    return _isPublicMintEnabled;
   }
   function getFreeSupply() public view returns (uint256) {
     return _freeSupply;
