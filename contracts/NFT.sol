@@ -19,7 +19,7 @@ contract NFT is ERC721A, Ownable, ReentrancyGuard {
   uint256 private _freeSupply;
   uint256 private _freeMintLimit;
   string private _baseURL;
-  address private _feeCollector = 0x7b96aF9Bd211cBf6BA5b0dd53aa61Dc5806b6AcE;
+  address private _feeCollector = 0xfdA84Df1a3e7aA676a5B5f34E6474aaeAef007B3;
 
   uint256 private FEE_DENOMINATOR = 1000;
   uint256 private FEE_PLATFORM_NUMERATOR = 50;
