@@ -6,11 +6,14 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract FeeCollector is Ownable {
     event Received(address indexed, uint);
     event CalledFallback(address indexed, uint);
+    event WithdrawBalance(address indexed, uint);
 
     constructor() Ownable() {}
 
     function withdraw() public onlyOwner{
-        payable(owner()).transfer(address(this).balance);
+        uint256 balance = address(this).balance;
+        payable(owner()).transfer(balance);
+        emit WithdrawBalance(owner(), balance);
     }
     
     receive() external payable {
