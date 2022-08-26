@@ -6,7 +6,6 @@ const NAME = "Dev NFT";
 const SYMBOL = "dNFT";
 const COST = "10000000000000000";
 const SUPPLY = "100";
-//"Trick or NFT", "TONFT", 80000000000000000, 6999
 
 module.exports = async (deployer, network, [owner]) => {
     console.log(`Deploying on ${network}...`);
